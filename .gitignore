@@ -29,6 +29,8 @@ var/
 wheels/
 models/
 plugins/
+docker/*.log
+docker/mysql/data/
 
 pip-wheel-metadata/
 share/python-wheels/
