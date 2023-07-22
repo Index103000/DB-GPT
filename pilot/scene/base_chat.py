@@ -39,6 +39,7 @@ from pilot.scene.base_message import (
     AIMessage,
     ViewMessage,
     ModelMessage,
+    ModelMessageRoleType,
 )
 from pilot.configs.config import Config
 
@@ -72,9 +73,14 @@ class BaseChat(ABC):
         self.memory = DuckdbHistoryMemory(chat_session_id)
 
         ### load prompt template
-        self.prompt_template: PromptTemplate = CFG.prompt_templates[
-            self.chat_mode.value()
-        ]
+        # self.prompt_template: PromptTemplate = CFG.prompt_templates[
+        #     self.chat_mode.value()
+        # ]
+        self.prompt_template: PromptTemplate = (
+            CFG.prompt_template_registry.get_prompt_template(
+                self.chat_mode.value(), language=CFG.LANGUAGE, model_name=CFG.LLM_MODEL
+            )
+        )
         self.history_message: List[OnceConversation] = self.memory.messages()
         self.current_message: OnceConversation = OnceConversation(chat_mode.value())
         self.current_tokens_used: int = 0
@@ -258,7 +264,7 @@ class BaseChat(ABC):
         if self.prompt_template.template_define:
             messages.append(
                 ModelMessage(
-                    role="system",
+                    role=ModelMessageRoleType.SYSTEM,
                     content=self.prompt_template.template_define,
                 )
             )
